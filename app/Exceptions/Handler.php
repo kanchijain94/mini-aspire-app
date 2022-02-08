@@ -2,11 +2,15 @@
 
 namespace App\Exceptions;
 
+use App\Traits\ApiResponser;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Throwable;
+use Illuminate\Http\Response;
+use Illuminate\Support\Arr;
 
 class Handler extends ExceptionHandler
 {
+    use ApiResponser;
     /**
      * A list of the exception types that are not reported.
      *
@@ -37,5 +41,18 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        if ($request->expectsJson()) {
+            return $this->errorResponse('Unauthorized or Token expired', Response::HTTP_UNAUTHORIZED);
+        }
+        $guard = Arr::get($exception->guards(), 0);
+        switch ($guard) {
+            case 'api':
+                return $this->errorResponse('Unauthorized or Token expired', Response::HTTP_UNAUTHORIZED);
+        }
+        return redirect()->guest(route('login'));
     }
 }

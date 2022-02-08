@@ -32,7 +32,7 @@ class AuthRepository implements AuthRepositoryInterface
             return $this->errorResponse('Invalid Credentials', Response::HTTP_UNAUTHORIZED);
         }
         $user = new AuthResource(auth()->user());
-        return $this->successResponse($user, 'Logged In successfully', Response::HTTP_CREATED);
+        return $this->successResponse($user, 'Logged In successfully', Response::HTTP_OK);
     }
 
     public function logout()
