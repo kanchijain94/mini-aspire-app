@@ -34,4 +34,14 @@ class LoanService{
         $calculatedAmount = $totalInterest + $applicationFee + (int)$principle;
         return $calculatedAmount;
     }
+
+    public function billableAmount($loan, $payable_amount)
+    {
+        return $loan->repayAmount - $payable_amount;
+    }
+
+    public function creditAmount($loan, $payable_amount)
+    {
+        return $loan->ewi - $payable_amount;
+    }
 }

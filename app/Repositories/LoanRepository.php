@@ -5,9 +5,11 @@ namespace App\Repositories;
 use App\Interfaces\LoanRepositoryInterface;
 use App\Models\Loan;
 use App\Models\User;
+use App\Models\WeeklyRepay;
 use App\Services\LoanService;
 use App\Traits\ApiResponser;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 class LoanRepository implements LoanRepositoryInterface
 {
@@ -15,11 +17,7 @@ class LoanRepository implements LoanRepositoryInterface
     public function newLoanRequest($request)
     {
         try{
-            //if user doesn't exist then return
             $user = User::find(auth()->user()->id);
-            if(!$user){
-                return $this->errorResponse('Invalid User', Response::HTTP_UNPROCESSABLE_ENTITY);
-            }
             $principle = $request->input('principle');
             $interestRate = (new LoanService())->calculateInterest($principle);
             $weeksToRepay = $request->input('weeksToRepay');
@@ -46,10 +44,6 @@ class LoanRepository implements LoanRepositoryInterface
     {
         try {
             $user = User::find(auth()->user()->id);
-            if(!$user){
-                return $this->errorResponse('Invalid User', Response::HTTP_UNPROCESSABLE_ENTITY);
-            }
-
             if($user->is_admin){
                 $loan = Loan::where('id', $request->input('loan_id'))->update([
                     'status' => 2
@@ -59,6 +53,42 @@ class LoanRepository implements LoanRepositoryInterface
                 return $this->errorResponse('Unauthorized user', Response::HTTP_UNAUTHORIZED);
             }
         }catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function weeklyRepay($request)
+    {
+        try {
+            DB::beginTransaction();
+            $user = User::find(auth()->user()->id);
+            $loan = Loan::where('id', $request->input('loan_id'))->where('user_id', $user->id)->first();
+            if(!$loan){
+                return $this->errorResponse('You don\'\t have loan.', Response::HTTP_BAD_REQUEST);
+            }
+            $payable_amount = $request->input('payable_amount');
+            $paid_by = $user->id;
+            $loan_id = $request->input('loan_id');
+
+            $weeklyRepays = new WeeklyRepay();
+            $weeklyRepays->loan_id = $loan_id;
+            $weeklyRepays->payable_amount = $payable_amount;
+            $weeklyRepays->paid_by = $paid_by;
+
+            $billable_amount = (new LoanService())->billableAmount($loan, $payable_amount);
+            $loan->repayAmount = $billable_amount;
+            $loan->weeksToRepay = $loan->weeksToRepay - 1;
+            $loan->save();
+
+            $credit_amount = (new LoanService())->creditAmount($loan, $payable_amount);
+            $weeklyRepays->billable_amount = $billable_amount;
+            $weeklyRepays->credit_amount = $credit_amount;
+            $weeklyRepays->save();
+
+            DB::commit();
+            return $this->successResponse($weeklyRepays,'Weekly repay saved successfully', Response::HTTP_CREATED);
+        }catch (\Exception $e) {
+            DB::rollBack();
             return $this->errorResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }

@@ -10,4 +10,9 @@ class Loan extends Model
     use HasFactory;
 
     protected $fillable = ['user_id', 'principle', 'interest', 'weeksToRepay', 'repayAmount', 'ewi'];
+
+    public function weeklyRepays()
+    {
+        $this->hasMany(WeeklyRepay::class);
+    }
 }
