@@ -10,7 +10,7 @@ class WeeklyRepay extends Model
     use HasFactory;
 
     protected $fillable = [
-        'loan_id', 'payable_amount', 'billable_amount', 'credit_amount', 'paid_by'
+        'loan_id', 'payable_amount', 'paid_by'
     ];
 
     public function loan()

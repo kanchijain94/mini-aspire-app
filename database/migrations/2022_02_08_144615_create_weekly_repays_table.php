@@ -17,8 +17,6 @@ class CreateWeeklyRepaysTable extends Migration
             $table->id();
             $table->unsignedBigInteger('loan_id');
             $table->double('payable_amount')->default(0);
-            $table->double('billable_amount')->default(0);
-            $table->double('credit_amount')->default(0);
             $table->unsignedBigInteger('paid_by');
             $table->timestamps();
             $table->foreign('loan_id')->references('id')->on('loans')->onDelete('cascade')->onUpdate('cascade');

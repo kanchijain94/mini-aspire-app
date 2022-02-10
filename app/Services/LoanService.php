@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Models\Loan;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 
 class LoanService{
@@ -31,17 +33,6 @@ class LoanService{
         $totalInterest = $interestPerWeek * $weeksToRepay;
         Log::info('totalInterest', [$totalInterest]);
         Log::info('interestPerWeek', [$interestPerWeek]);
-        $calculatedAmount = $totalInterest + $applicationFee + (int)$principle;
-        return $calculatedAmount;
-    }
-
-    public function billableAmount($loan, $payable_amount)
-    {
-        return $loan->repayAmount - $payable_amount;
-    }
-
-    public function creditAmount($loan, $payable_amount)
-    {
-        return $loan->ewi - $payable_amount;
+        return $totalInterest + $applicationFee + (int)$principle;
     }
 }

@@ -2,8 +2,10 @@
 
 namespace App\Repositories;
 
+use App\Http\Resources\Loan\WeeklyRepayResource;
 use App\Interfaces\LoanRepositoryInterface;
 use App\Models\Loan;
+use App\Models\Outstanding;
 use App\Models\User;
 use App\Models\WeeklyRepay;
 use App\Services\LoanService;
@@ -35,6 +37,7 @@ class LoanRepository implements LoanRepositoryInterface
                 ]);
                 return $this->successResponse($loan,'Loan Request made successfully', Response::HTTP_CREATED);
             }
+            return $this->errorResponse('Access forbidden', Response::HTTP_UNAUTHORIZED);
         } catch (\Exception $e) {
             return $this->errorResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
@@ -60,11 +63,10 @@ class LoanRepository implements LoanRepositoryInterface
     public function weeklyRepay($request)
     {
         try {
-            DB::beginTransaction();
             $user = User::find(auth()->user()->id);
-            $loan = Loan::where('id', $request->input('loan_id'))->where('user_id', $user->id)->first();
+            $loan = Loan::where('id', $request->input('loan_id'))->where('user_id', $user->id)->where('status', 2)->first();
             if(!$loan){
-                return $this->errorResponse('You don\'\t have loan.', Response::HTTP_BAD_REQUEST);
+                return $this->errorResponse('You don\'t have loan.', Response::HTTP_BAD_REQUEST);
             }
             $payable_amount = $request->input('payable_amount');
             $paid_by = $user->id;
@@ -74,21 +76,8 @@ class LoanRepository implements LoanRepositoryInterface
             $weeklyRepays->loan_id = $loan_id;
             $weeklyRepays->payable_amount = $payable_amount;
             $weeklyRepays->paid_by = $paid_by;
-
-            $billable_amount = (new LoanService())->billableAmount($loan, $payable_amount);
-            $loan->repayAmount = $billable_amount;
-            $loan->weeksToRepay = $loan->weeksToRepay - 1;
-            $loan->save();
-
-            $credit_amount = (new LoanService())->creditAmount($loan, $payable_amount);
-            $weeklyRepays->billable_amount = $billable_amount;
-            $weeklyRepays->credit_amount = $credit_amount;
-            $weeklyRepays->save();
-
-            DB::commit();
-            return $this->successResponse($weeklyRepays,'Weekly repay saved successfully', Response::HTTP_CREATED);
+            if($weeklyRepays->save()) return $this->successResponse(WeeklyRepayResource::make($weeklyRepays),'Weekly repayed successfully', Response::HTTP_CREATED);
         }catch (\Exception $e) {
-            DB::rollBack();
             return $this->errorResponse($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }

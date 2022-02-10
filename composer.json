@@ -12,7 +12,8 @@
         "laravel/passport": "^10.3",
         "laravel/sanctum": "^2.11",
         "laravel/tinker": "^2.5",
-        "rap2hpoutre/laravel-log-viewer": "^2.0"
+        "rap2hpoutre/laravel-log-viewer": "^2.0",
+      "ext-json": "*"
     },
     "require-dev": {
         "beyondcode/laravel-query-detector": "^1.5",
