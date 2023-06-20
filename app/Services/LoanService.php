@@ -10,29 +10,29 @@ class LoanService{
 
 
     //Calculate rate of interest (BTW we can check from stored data)
-    public function calculateInterest($principle)
+    public function calculateInterest($principal_amount)
     {
-        if($principle >= 10000 && $principle < 50000){
+        if($principal_amount >= 10000 && $principal_amount < 50000){
             return 4;
         }
 
-        if($principle >= 50000 && $principle < 100000){
+        if($principal_amount >= 50000 && $principal_amount < 100000){
             return 3;
         }
 
-        if($principle >= 100000){
+        if($principal_amount >= 100000){
             return 2;
         }
     }
 
     //Calculate amount
-    public function calculateAmount($principle, $weeksToRepay, $interestRate)
+    public function calculateAmount($principal_amount, $term, $interestRate)
     {
         $applicationFee = 500;
-        $interestPerWeek = ($principle/100) * $interestRate;
-        $totalInterest = $interestPerWeek * $weeksToRepay;
+        $interestPerWeek = ($principal_amount/100) * $interestRate;
+        $totalInterest = $interestPerWeek * $term;
         Log::info('totalInterest', [$totalInterest]);
         Log::info('interestPerWeek', [$interestPerWeek]);
-        return $totalInterest + $applicationFee + (int)$principle;
+        return $totalInterest + $applicationFee + (int)$principal_amount;
     }
 }

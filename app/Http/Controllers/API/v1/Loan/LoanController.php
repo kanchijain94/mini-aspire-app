@@ -6,6 +6,7 @@ use App\Http\Controllers\API\APIController;
 use App\Http\Requests\Loan\ApproveLoanRequest;
 use App\Http\Requests\Loan\NewLoanRequest;
 use App\Http\Requests\Loan\WeeklyRepayRequest;
+use App\Http\Requests\Loan\ShowLoansRequest;
 use App\Interfaces\LoanRepositoryInterface;
 use Illuminate\Http\JsonResponse;
 
@@ -30,5 +31,10 @@ class LoanController extends APIController
     public function weeklyRepay(WeeklyRepayRequest $request): JsonResponse
     {
         return $this->loanRepository->weeklyRepay($request);
+    }
+    
+    public function showLoans(ShowLoansRequest $request): JsonResponse
+    {
+        return $this->loanRepository->showLoans($request);
     }
 }

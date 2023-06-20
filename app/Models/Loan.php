@@ -9,7 +9,7 @@ class Loan extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'principle', 'interest', 'weeksToRepay', 'repayAmount', 'ewi'];
+    protected $fillable = ['user_id', 'principal_amount', 'interest', 'term', 'repay_amount', 'ewi'];
 
     public function weeklyRepays()
     {

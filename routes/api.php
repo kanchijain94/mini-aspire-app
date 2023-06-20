@@ -27,6 +27,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['jsonify']], function () {
             Route::group(['prefix' =>'loan'], function(){
                 Route::post('new-loan-request', [LoanController::class, 'newLoanRequest']);
                 Route::post('weekly-repay', [LoanController::class, 'weeklyRepay']);
+                Route::get('show-loans', [LoanController::class, 'showLoans']);
             });
 
             Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {

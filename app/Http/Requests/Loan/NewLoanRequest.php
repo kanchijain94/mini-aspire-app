@@ -24,8 +24,8 @@ class NewLoanRequest extends FormRequest
     public function rules()
     {
         return [
-            'principle' => 'required|integer|min:10000|gt:0',
-            'weeksToRepay' => 'required|numeric|gt:0'
+            'principal_amount' => 'required|integer|min:10000|gt:0',
+            'term' => 'required|numeric|gt:0'
         ];
     }
 }

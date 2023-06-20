@@ -45,8 +45,4 @@ class AuthRepository implements AuthRepositoryInterface
             return $this->errorResponse($e->getMessage(), Response::HTTP_UNAUTHORIZED);
         }
     }
-
-    public function me()
-    {
-    }
 }
